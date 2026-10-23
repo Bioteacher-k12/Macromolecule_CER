@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CER Graphic Organizer - Elephants & Lions</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- html2pdf.js bundle CDN for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #f1f5f9;
+      color: #0f2338;
+    }
+
+    /* Print / PDF export overrides */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background-color: white !important;
+        padding: 0 !important;
+      }
+      .worksheet-container {
+        box-shadow: none !important;
+        border: 2px solid #0f2338 !important;
+        width: 100% !important;
+        max-width: none !important;
+        padding: 1rem !important;
+      }
+      textarea {
+        resize: none !important;
+        background: transparent !important;
+      }
+    }
+
+    /* Worksheet crisp dark box borders */
+    .worksheet-box {
+      border: 2px solid #0f2338;
+      background-color: #ffffff;
+      position: relative;
+    }
+
+    /* Auto-expanding textarea styling */
+    .auto-textarea {
+      resize: none;
+      overflow: hidden;
+      width: 100%;
+      min-height: 55px;
+      outline: none;
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      color: #0f2338;
+    }
+
+    .auto-textarea:focus {
+      background-color: rgba(241, 245, 249, 0.4);
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-8">
+
+  <!-- TOP ACTION BAR / NAVIGATION (Hidden when printing or exporting PDF) -->
+  <header class="no-print bg-[#0f2338] text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="p-1.5 bg-blue-600/30 rounded-lg border border-blue-400/30">
+          <svg class="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">CER Graphic Organizer</h1>
+          <p class="text-xs text-slate-300">Interactive Worksheet & PDF Generator</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons & Auto-Save Indicator -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <!-- Save Status Badge -->
+        <span id="save-status" class="hidden sm:inline-flex items-center text-xs text-emerald-400 font-medium px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-800/60 transition-opacity duration-300">
+          <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          Saved to browser
+        </span>
+
+        <!-- PDF Export Button -->
+        <button onclick="exportToPDF()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs sm:text-sm font-semibold transition flex items-center space-x-1.5 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <span>Save as PDF</span>
+        </button>
+
+        <!-- Print Button -->
+        <button onclick="window.print()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 hover:text-white rounded-md text-xs sm:text-sm font-medium transition flex items-center space-x-1 border border-slate-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+          </svg>
+          <span class="hidden md:inline">Print</span>
+        </button>
+
+        <!-- Clear / Reset Button -->
+        <button onclick="openResetModal()" class="px-3 py-1.5 bg-red-900/40 hover:bg-red-800/60 text-red-200 border border-red-700/50 rounded-md text-xs sm:text-sm font-medium transition flex items-center space-x-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          <span>Clear</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSHEET CONTAINER -->
+  <main class="max-w-[1280px] mx-auto p-2 sm:p-4 my-2">
+    <div id="worksheet-area" class="worksheet-container bg-white p-4 sm:p-6 rounded-none border-2 border-[#0f2338] shadow-md">
+
+      <!-- TOP SECTION: QUESTION BOX -->
+      <div class="worksheet-box p-3 mb-5">
+        <div class="text-[#0f2338] font-sans font-normal text-base sm:text-lg mb-1">
+          Question:
+        </div>
+        <textarea
+          data-save-key="question"
+          class="auto-textarea text-center text-[#0f2338] font-sans text-lg sm:text-xl md:text-2xl font-normal py-1 px-2 focus:bg-slate-50 min-h-[42px]"
+          placeholder="Enter question here..."
+          rows="1">What do Elephants and Lions use as energy to survive?</textarea>
+      </div>
+
+      <!-- MIDDLE SECTION: SIDE-BY-SIDE COLUMNS (ELEPHANTS & LIONS) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-5">
+
+        <!-- COLUMN 1: ELEPHANTS -->
+        <div class="space-y-4">
+          <h2 class="text-center font-sans text-2xl sm:text-3xl font-normal text-[#0f2338] mb-2 tracking-normal">
+            Elephants
+          </h2>
+
+          <!-- Row 1: Evidence & Reasoning with Chain Link SVG -->
+          <div class="relative grid grid-cols-2 gap-3 items-stretch">
+            <div class="worksheet-box p-2.5 min-h-[90px] flex flex-col justify-start">
+              <div class="text-[#0f2338] font-sans text-base sm:text-lg font-normal mb-1">Evidence:</div>
+              <textarea
+                data-save-key="ele_ev_1"
+                class="auto-textarea text-sm text-slate-800 min-h-[55px]"
+                placeholder="Type evidence..."></textarea>
+            </div>
+
+            <div class="worksheet-box p-2.5 min-h-[90px] flex flex-col justify-start">
+              <div class="text-[#0f2338] font-sans text-base sm:text-lg font-normal mb-1">Reasoning:</div>
+              <textarea
+                data-save-key="ele_re_1"
+                class="auto-textarea text-sm text-slate-800 min-h-[55px]"
+                placeholder="Type reasoning..."></textarea>
+            </div>
+
+            <!-- Chain Link SVG Icon -->
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+              <svg width="38" height="38" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g transform="rotate(-35 25 25)" stroke="#0f2338" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="7" y="18" width="16" height="14" rx="7" fill="white"/>
+                  <line x1="18" y1="25" x2="32" y2="25"/>
+                  <rect x="27" y="18" width="16" height="14" rx="7" fill="white"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Row 2: Evidence & Reasoning -->
+          <div class="relative grid grid-cols-2 gap-3 items-stretch">
+            <div class="worksheet-box p-2.5 min-h-[90px] flex flex-col justify-start">
+              <textarea
+                data-save-key="ele_ev_2"
+                class="auto-textarea text-sm text-slate-800 min-h-[75px]"
+                placeholder="Type evidence..."></textarea>
+            </div>
+
+            <div class="worksheet-box p-2.5 min-h-[90px] flex flex-col justify-start">
+              <textarea
+                data-save-key="ele_re_2"
+                class="auto-textarea text-sm text-slate-800 min-h-[75px]"
+                placeholder="Type reasoning..."></textarea>
+            </div>
+
+            <!-- Chain Link SVG Icon -->
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+              <svg width="38" height="38" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g transform="rotate(-35 25 25)" stroke="#0f2338" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="7" y="18" width="16" height="14" rx="7" fill="white"/>
+                  <line x1="18" y1="25" x2="32" y2="25"/>
+                  <rect x="27" y="18" width="16" height="14" rx="7" fill="white"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Row 3: Evidence & Reasoning -->
+          <div class="relative grid grid-cols-2 gap-3 items-stretch">
+            <div class="worksheet-box p-2.5 min-h-[90px] flex flex-col justify-start">
+              <textarea
+                data-save-key="ele_ev_3"
+                class="auto-textarea text-sm text-slate-800 min-h-[75px]"
+                placeholder="Type evidence..."></textarea>
+            </div>
+
+            <div class="worksheet-box p-2.5 min-h-[90px] flex flex-col justify-start">
+              <textarea
+                data-save-key="ele_re_3"
+                class="auto-textarea text-sm text-slate-800 min-h-[75px]"
+                placeholder="Type reasoning..."></textarea>
+            </div>
+
+            <!-- Chain Link SVG Icon -->
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+              <svg width="38" height="38" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g transform="rotate(-35 25 25)" stroke="#0f2338" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="7" y="18" width="16" height="14" rx="7" fill="white"/>
+                  <line x1="18" y1="25" x2="32" y2="25"/>
+                  <rect x="27" y="18" width="16" height="14" rx="7" fill="white"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMN 2: LIONS -->
+        <div class="space-y-4">
+          <h2 class="text-center font-sans text-2xl sm:text-3xl font-normal text-[#0f2338] mb-2 tracking-normal">
+            Lions
+          </h2>
+
+          <!-- Row 1: Evidence & Reasoning -->
+          <div class="relative grid grid-cols-2 gap-3 items-stretch">
+            <div class="worksheet-box p-2.5 min-h-[90px] flex flex-col justify-start">
+              <div class="text-[#0f2338] font-sans text-base sm:text-lg font-normal mb-1">Evidence:</div>
+              <textarea
+                data-save-key="lion_ev_1"
+                class="auto-textarea text-sm text-slate-800 min-h-[55px]"
+                placeholder="Type evidence..."></textarea>
+            </div>
+
+            <div class="worksheet-box p-2.5 min-h-[90px] flex flex-col justify-start">
+              <div class="text-[#0f2338] font-sans text-base sm:text-lg font-normal mb-1">Reasoning:</div>
+              <textarea
+                data-save-key="lion_re_1"
+                class="auto-textarea text-sm text-slate-800 min-h-[55px]"
+                placeholder="Type reasoning..."></textarea>
+            </div>
+
+            <!-- Chain Link SVG Icon -->
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+              <svg width="38" height="38" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g transform="rotate(-35 25 25)" stroke="#0f2338" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="7" y="18" width="16" height="14" rx="7" fill="white"/>
+                  <line x1="18" y1="25" x2="32" y2="25"/>
+                  <rect x="27" y="18" width="16" height="14" rx="7" fill="white"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Row 2: Evidence & Reasoning -->
+          <div class="relative grid grid-cols-2 gap-3 items-stretch">
+            <div class="worksheet-box p-2.5 min-h-[90px] flex flex-col justify-start">
+              <textarea
+                data-save-key="lion_ev_2"
+                class="auto-textarea text-sm text-slate-800 min-h-[75px]"
+                placeholder="Type evidence..."></textarea>
+            </div>
+
+            <div class="worksheet-box p-2.5 min-h-[90px] flex flex-col justify-start">
+              <textarea
+                data-save-key="lion_re_2"
+                class="auto-textarea text-sm text-slate-800 min-h-[75px]"
+                placeholder="Type reasoning..."></textarea>
+            </div>
+
+            <!-- Chain Link SVG Icon -->
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+              <svg width="38" height="38" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g transform="rotate(-35 25 25)" stroke="#0f2338" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="7" y="18" width="16" height="14" rx="7" fill="white"/>
+                  <line x1="18" y1="25" x2="32" y2="25"/>
+                  <rect x="27" y="18" width="16" height="14" rx="7" fill="white"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Row 3: Evidence & Reasoning -->
+          <div class="relative grid grid-cols-2 gap-3 items-stretch">
+            <div class="worksheet-box p-2.5 min-h-[90px] flex flex-col justify-start">
+              <textarea
+                data-save-key="lion_ev_3"
+                class="auto-textarea text-sm text-slate-800 min-h-[75px]"
+                placeholder="Type evidence..."></textarea>
+            </div>
+
+            <div class="worksheet-box p-2.5 min-h-[90px] flex flex-col justify-start">
+              <textarea
+                data-save-key="lion_re_3"
+                class="auto-textarea text-sm text-slate-800 min-h-[75px]"
+                placeholder="Type reasoning..."></textarea>
+            </div>
+
+            <!-- Chain Link SVG Icon -->
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+              <svg width="38" height="38" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g transform="rotate(-35 25 25)" stroke="#0f2338" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="7" y="18" width="16" height="14" rx="7" fill="white"/>
+                  <line x1="18" y1="25" x2="32" y2="25"/>
+                  <rect x="27" y="18" width="16" height="14" rx="7" fill="white"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BOTTOM SECTION: GUIDELINES & CLAIM BOX -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end pt-1">
+
+        <!-- REMINDER GUIDELINES (Left Side) -->
+        <div class="md:col-span-6 lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs sm:text-sm text-[#0f2338] leading-tight">
+          <div class="p-1">
+            <span>Remember evidence is what data you have</span>
+          </div>
+          <div class="p-1">
+            <span>Remember reasoning is why your data helps answer the question</span>
+          </div>
+          <div class="p-1">
+            <span>Remember the claim will answer to the question that your evidence <span class="underline underline-offset-2">lead</span> you to</span>
+          </div>
+        </div>
+
+        <!-- CLAIM BOX (Right Side) -->
+        <div class="md:col-span-6 lg:col-span-5">
+          <div class="worksheet-box p-3 min-h-[110px] flex flex-col justify-start">
+            <div class="text-[#0f2338] font-sans text-base sm:text-lg font-normal mb-1">
+              Claim:
+            </div>
+            <textarea
+              data-save-key="claim"
+              class="auto-textarea text-sm text-slate-800 min-h-[75px]"
+              placeholder="State your claim here..."></textarea>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- CONFIRMATION MODAL FOR CLEAR/RESET -->
+  <div id="reset-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
+      <div class="flex items-center space-x-3 text-red-600 mb-3">
+        <div class="p-2 bg-red-100 rounded-full">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800">Clear Worksheet?</h3>
+      </div>
+      <p class="text-slate-600 text-sm mb-6">Are you sure you want to clear all text boxes? All saved data will be permanently removed from your browser storage.</p>
+      <div class="flex justify-end space-x-3">
+        <button onclick="closeResetModal()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium text-sm transition">Cancel</button>
+        <button onclick="confirmReset()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm shadow transition">Clear All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION LOGIC & LOCAL STORAGE -->
+  <script>
+    const STORAGE_KEY = 'cer_worksheet_data';
+
+    // Auto-adjust textarea height
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.max(textarea.scrollHeight, 45) + 'px';
+    }
+
+    // Save inputs to LocalStorage
+    function saveData() {
+      const data = {};
+      document.querySelectorAll('[data-save-key]').forEach(el => {
+        data[el.getAttribute('data-save-key')] = el.value;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      showSaveStatus();
+    }
+
+    // Save indicator badge animation
+    let statusTimeout;
+    function showSaveStatus() {
+      const badge = document.getElementById('save-status');
+      if (badge) {
+        badge.classList.remove('hidden');
+        badge.style.opacity = '1';
+        clearTimeout(statusTimeout);
+        statusTimeout = setTimeout(() => {
+          badge.style.opacity = '0.7';
+        }, 1500);
+      }
+    }
+
+    // Load data from LocalStorage
+    function loadSavedData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          Object.keys(data).forEach(key => {
+            const el = document.querySelector(`[data-save-key="${key}"]`);
+            if (el) {
+              el.value = data[key];
+              autoResize(el);
+            }
+          });
+        } catch (e) {
+          console.error('Error reading saved CER data:', e);
+        }
+      } else {
+        document.querySelectorAll('textarea').forEach(autoResize);
+      }
+    }
+
+    // Reset Modal Logic
+    function openResetModal() {
+      document.getElementById('reset-modal').classList.remove('hidden');
+    }
+
+    function closeResetModal() {
+      document.getElementById('reset-modal').classList.add('hidden');
+    }
+
+    function confirmReset() {
+      localStorage.removeItem(STORAGE_KEY);
+      document.querySelectorAll('[data-save-key]').forEach(el => {
+        if (el.getAttribute('data-save-key') === 'question') {
+          el.value = "What do Elephants and Lions use as energy to survive?";
+        } else {
+          el.value = "";
+        }
+        autoResize(el);
+      });
+      closeResetModal();
+      showSaveStatus();
+    }
+
+    // PDF Export
+    function exportToPDF() {
+      const element = document.getElementById('worksheet-area');
+
+      // Expand all textareas fully before rendering
+      document.querySelectorAll('textarea').forEach(autoResize);
+
+      const opt = {
+        margin:       [0.25, 0.25, 0.25, 0.25],
+        filename:     'CER_Graphic_Organizer_Elephants_vs_Lions.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, logging: false },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        document.querySelectorAll('textarea').forEach(autoResize);
+      });
+    }
+
+    // Initialize Event Listeners
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSavedData();
+
+      document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('input', () => {
+          autoResize(textarea);
+          saveData();
+        });
+      });
+
+      window.addEventListener('resize', () => {
+        document.querySelectorAll('textarea').forEach(autoResize);
+      });
+    });
+  </script>
+</body>
+</html>
